@@ -1,6 +1,6 @@
 import { ANSWER_MAP, QUESTION_MAP } from "./constants.js";
 
-function validateAnswers(body) {
+export function validateAnswers(body) {
   for (const questionKey of Object.keys(QUESTION_MAP)) {
     const questionText = QUESTION_MAP[questionKey];
     const answerValue = body[questionKey];
