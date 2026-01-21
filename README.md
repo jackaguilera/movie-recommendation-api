@@ -83,7 +83,7 @@ movie-recommendation-api/
 └── README.md
 ```
 
-Prisma is wired following the official Workers + Prisma guidance, using a per‑request client and a Postgres/D1 adapter depending on your chosen database. [honojs](https://www.honojs.com/examples/prisma)
+Prisma is wired following the official Workers + Prisma guidance, using a per‑request client and a Postgres/D1 adapter depending on your chosen database.
 
 ***
 
