@@ -22,8 +22,9 @@
   },
   "homepage": "https://github.com/jackaguilera/movie-recommendation-api#readme",
   "devDependencies": {
-    "wrangler": "^4.59.3",
-    "prisma": "^5.14.0"
+    "prisma": "^5.14.0",
+    "vitest": "^4.0.17",
+    "wrangler": "^4.59.3"
   },
   "dependencies": {
     "@prisma/client": "^5.14.0"
