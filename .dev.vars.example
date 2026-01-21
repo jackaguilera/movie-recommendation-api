@@ -1,0 +1,24 @@
+# =====================================================================
+#  .dev.vars.example
+#  ----------------------------------------------------
+#  Example environment variables for local development.
+#  Copy this file to `.dev.vars` and fill in your own values.
+#
+#  IMPORTANT:
+#    - Do NOT commit your real `.dev.vars` file.
+#    - This file is safe to publish because it contains no secrets.
+# =====================================================================
+
+# -----------------------------------------------------
+# Cloudflare Account
+# -----------------------------------------------------
+# Your Cloudflare account ID.
+# Used by Wrangler to call Workers AI during local development.
+CLOUDFLARE_ACCOUNT_ID=your-account-id-here
+
+# -----------------------------------------------------
+# Workers AI
+# -----------------------------------------------------
+# API key for Cloudflare Workers AI.
+# This is required to call the LLM model locally.
+AI_API_KEY=your-workers-ai-api-key-here

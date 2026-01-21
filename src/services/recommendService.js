@@ -50,7 +50,7 @@ Match all three dimensions. Real movie only. No disclaimers.`;
 
   try {
     const response = await env.AI_API.fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/ai/run/${env.AI_MODEL_ID}`,
+      `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/meta/llama-3.2-1b-instruct`,
       {
         method: "POST",
         headers: {

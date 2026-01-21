@@ -1,21 +1,47 @@
-# 🎬 Movie Recommendation API **Backend** (MVP v1)
+# 🎬 Movie Recommendation API
 
-A lightweight **Cloudflare Workers backend** that powers the Movie Recommendation Assistant frontend.  
-Receives 3 guided answers from the UI → calls an LLM → returns a **movie recommendation with explanation**, optionally persisting data with **Prisma ORM**. [prisma](https://www.prisma.io/docs/guides/cloudflare-workers)
+A lightweight **Cloudflare Workers backend** that powers the Movie Recommendation Assistant. Guided by three discovery questions, the API uses an LLM to generate personalized movie recommendations based on emotional needs, mental state, and desired viewing experience.
 
-**Standalone backend repo** – pairs with the frontend repo (`movie-recommendation`).  
+**Standalone backend repo** – pairs with the frontend repo (`movie-recommendation`).
 
-***
+---
 
-## 🚀 Features (MVP)
+## ✨ How It Works
 
-- **Edge API on Cloudflare Workers** – low latency, global deployment. [developers.cloudflare](https://developers.cloudflare.com/workers/)
-- **Single JSON endpoint** → `POST /api/recommend` for movie suggestions.  
-- **LLM integration ready** – pluggable `llmService` (Workers AI or external provider). [developers.cloudflare](https://developers.cloudflare.com/workers-ai/get-started/workers-wrangler/)
-- **Prisma ORM support** – optional persistence of sessions and recommendations. [developers.cloudflare](https://developers.cloudflare.com/workers/tutorials/using-prisma-postgres-with-workers/)
-- **Frontend‑friendly contract** – matches `recommendMovie()` usage in the Vite + React app.
+The API guides users through three questions to understand their context, then uses those answers to generate a tailored movie recommendation via LLM.
 
-***
+### **Question 1: What do you need from a movie right now?**
+
+_Captures emotional/thematic intent_
+
+- 🚪 **Escape** – Transport me somewhere else
+- 🪞 **Validate** – See my feelings reflected
+- ❓ **Challenge** – Question my assumptions
+- ⬆️ **Inspire** – Lift me up & motivate me
+- 🧘 **Soothe** – Calm my mind & relax
+- 🤝 **Connect** – Feel understood & less alone
+
+### **Question 2: How much mental energy do you have?**
+
+_Captures cognitive bandwidth_
+
+- 💤 **Depleted** – I need something that asks nothing of me
+- 👁️ **Present** – I can follow along without strain
+- ⚡ **Alert** – I'm ready to think & be challenged
+- 🎲 **Flexible** – Surprise me based on my other answers
+
+### **Question 3: What kind of experience do you want?**
+
+_Captures sensory/narrative preference_
+
+- 🎭 **Intimate** – Close-up human stories, emotional depth
+- 🏔️ **Epic** – Grand scale, sweeping scope, bigger-than-life
+- 🔥 **Visceral** – Strong sensory experience (visuals, sound, tension)
+- 🧩 **Cerebral** – Intellectual puzzle, ideas matter most
+- 💨 **Kinetic** – Movement & momentum, things happen fast
+- 🎲 **Surprise me** – Let my answers guide you
+
+---
 
 ## 🧠 API Contract
 
@@ -26,180 +52,260 @@ POST /api/recommend
 Content-Type: application/json
 ```
 
-### Request body (from frontend)
+### Request Body
 
 ```json
 {
-  "preferenceType": "genre | actor | theme | director | producer | color",
-  "answer1": "string",
-  "answer2": "string",
-  "answer3": "modern | classic | other"
+  "q1": 0,
+  "q2": 1,
+  "q3": 2
 }
 ```
 
-### Response shape
+Where each value is an integer index corresponding to the answer choice for each question.
+
+### Response Shape
 
 ```json
 {
-  "movie": "Inception (2010)",
-  "reason": "Matches sci-fi + modern + fast-paced preferences",
-  "director": "Christopher Nolan"
+  "ok": true,
+  "recommendation": {
+    "title": "Inception",
+    "reason": "A mind-bending adventure that transports you to surreal worlds...",
+    "director": "Christopher Nolan"
+  }
 }
 ```
 
-This structure is designed to align exactly with the existing frontend integration.  
+Error response:
 
-***
+```json
+{
+  "ok": false,
+  "error": "Missing answer for q1: What do you need from a movie right now?"
+}
+```
 
-## 📁 Backend Structure (v1)
+---
+
+## 📁 Project Structure
 
 ```text
 movie-recommendation-api/
 ├── src/
-│   ├── index.js                 # Worker entry (fetch handler)
+│   ├── index.js                      # Worker entry point
 │   ├── routes/
-│   │   └── recommend.js         # /api/recommend route
+│   │   └── recommend.js              # POST /api/recommend route
 │   ├── controllers/
-│   │   └── recommendController.js
+│   │   └── recommendController.js    # Request handler & orchestration
 │   ├── services/
-│   │   ├── recommendService.js  # core recommendation logic
-│   │   └── llmService.js        # wraps LLM / Workers AI
+│   │   ├── recommendService.js       # Core recommendation logic
+│   │   └── llmService.js             # LLM integration layer
 │   ├── db/
-│   │   ├── prismaClient.js      # Prisma client for Workers/edge
+│   │   ├── prismaClient.js           # Prisma client setup
 │   │   └── repositories/
 │   │       └── recommendationRepository.js
-│   ├── utils/
-│   │   ├── validation.js        # validate payload from frontend
-│   │   └── responses.js         # JSON response helpers
-│   └── config/
-│       └── env.js               # read env vars from `env`
+│   └── utils/
+│       ├── validation.js             # Payload validation (q1, q2, q3)
+│       └── constants.js              # Question & answer mappings
 ├── prisma/
-│   ├── schema.prisma            # PreferenceSession + Recommendation models
-│   └── migrations/              # generated by Prisma
+│   └── schema.prisma                 # Data models
 ├── tests/
-│   └── recommend.test.js        # basic endpoint tests
-├── wrangler.toml                # Cloudflare Worker configuration
+│   ├── recommend.test.js             # API endpoint tests
+│   └── validation.test.js            # Input validation tests
+├── vitest.config.js                  # Test configuration
+├── wrangler.toml                     # Cloudflare Worker config
 ├── package.json
 └── README.md
 ```
 
-Prisma is wired following the official Workers + Prisma guidance, using a per‑request client and a Postgres/D1 adapter depending on your chosen database.
+---
 
-***
-
-## 🚀 Quick Start
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+  
+- Node.js 18+
 - Cloudflare account + `wrangler` CLI installed. [developers.cloudflare](https://developers.cloudflare.com/workers/get-started/guide/)
-- A Prisma‑compatible database (Prisma Postgres, Hyperdrive Postgres, or D1 via adapter). [developers.cloudflare](https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-drivers-and-libraries/prisma-orm/)
+- An LLM API key (Cloudflare Workers AI)
 
-### 1. Install dependencies
+### Installation
 
 ```bash
-# Clone this backend repo
+# Clone and install
 git clone https://github.com/jackaguilera/movie-recommendation-api.git
 cd movie-recommendation-api
-
-# Install dependencies
 npm install
 ```
 
-### 2. Configure Prisma
+### Environment Setup
 
-1. Update `prisma/schema.prisma` with your datasource (Postgres / D1 / Hyperdrive). [prisma](https://www.prisma.io/docs/guides/cloudflare-workers)
-2. Run migrations and generate client:
+#### Local Development (`.dev.vars`)
 
-```bash
-npx prisma migrate dev   # apply migrations locally
-npx prisma generate      # generate Prisma Client for Workers
-```
-
-### 3. Environment variables
-
-Configure database and LLM settings in `wrangler.toml` / Cloudflare dashboard: [developers.cloudflare](https://developers.cloudflare.com/workers/tutorials/using-prisma-postgres-with-workers/)
-
-```toml
-# wrangler.toml (example)
-[vars]
-DATABASE_URL = "postgres://..."
-LLM_API_KEY  = "your-llm-key"
-```
-
-In the Worker code these are available as `env.DATABASE_URL`, `env.LLM_API_KEY`. [developers.cloudflare](https://developers.cloudflare.com/workers-ai/get-started/workers-wrangler/)
-
-### 4. Local development
+For local testing with `npm run dev`, create a `.dev.vars` file in the project root:
 
 ```bash
-# Start local dev server on http://127.0.0.1:8787
-npm run dev   # typically runs `wrangler dev`
+cp .dev.vars.example .dev.vars
 ```
 
-Test the API:
+Edit `.dev.vars` with your local configuration:
+
+```plaintext
+# LLM Configuration
+CLOUDFLARE_ACCOUNT_ID=abc123
+AI_API_KEY=super-secret
+```
+
+The `.dev.vars` file is **gitignored** and will not be committed. Use `.dev.vars.example` as a template for others.
+
+#### Production (Environment Variables in Cloudflare)
+
+For production deployment, set environment variables in Cloudflare's dashboard or via `wrangler`:
+
+```bash
+wrangler secret put CLOUDFLARE_ACCOUNT_ID
+# Enter: your own cloudflare account ID
+
+wrangler secret AI_API_KEY
+# Enter: your-production-api-key
+```
+
+Then deploy with:
+
+```bash
+wrangler deploy
+```
+
+### Local Development
+
+```bash
+# Start dev server (http://127.0.0.1:8787)
+npm run dev
+
+# Run tests
+npm run test:run
+
+# Watch tests
+npm run test:watch
+```
+
+### Test the API Locally
 
 ```bash
 curl -X POST http://127.0.0.1:8787/api/recommend \
   -H "Content-Type: application/json" \
-  -d '{
-    "preferenceType": "genre",
-    "answer1": "sci-fi",
-    "answer2": "time travel",
-    "answer3": "modern"
-  }'
+  -d '{"q1": 0, "q2": 1, "q3": 2}'
 ```
 
-You should receive a JSON recommendation matching the frontend’s expected shape.  
+Expected response (EXAMPLE):
 
-***
+```json
+{
+  "ok": true,
+  "recommendation": {
+    "title": "Spirited Away",
+    "reason": "A visually stunning escape that soothes and transports...",
+    "director": "Hayao Miyazaki"
+  }
+}
+```
 
-## 🌐 Production Deployment
+---
 
-### Deploy Worker
+## 🌐 Deployment
+
+### Deploy to Cloudflare Workers
 
 ```bash
-npm run deploy   # typically runs `wrangler deploy`
+npm run deploy
 ```
 
-On success, Cloudflare returns a URL like:
+This deploys your Worker to Cloudflare's edge network. The Worker will be available at:
 
 ```text
-https://movie-recommendation-api.your-account.workers.dev
+https://movie-recommendation-api.<account>.workers.dev
 ```
 
-The frontend’s `VITE_API_URL` should point to:
+### Connect Frontend
+
+In the frontend repo (Vite + React), configure the API URL:
 
 ```env
-VITE_API_URL=https://movie-recommendation-api.your-account.workers.dev/api/recommend
+VITE_API_URL=https://movie-recommendation-api.<account>.workers.dev/api/recommend
 ```
 
-Set that environment variable in **Cloudflare Pages** for the frontend repo. [developers.cloudflare](https://developers.cloudflare.com/workers/framework-guides/web-apps/react/)
+---
 
-***
+## 🧪 Testing
 
-## 📌 Roadmap (This Backend Repo)
+The project uses **Vitest** for testing with comprehensive coverage of:
 
-### v1 — MVP (this repo)
+- ✅ Validation logic for q1, q2, q3 inputs
+- ✅ Valid answer range checks
+- ✅ Missing/invalid payload rejection
+- ✅ API endpoint integration
 
-- [x] `POST /api/recommend` endpoint.  
-- [x] Input validation for 3‑question flow.  
-- [x] Pluggable `llmService` abstraction.  
-- [x] Optional persistence via Prisma ORM (sessions + recommendations).  
+```bash
+# Run all tests
+npm run test:run
+
+# Watch mode (live reload)
+npm run test:watch
+```
+
+## 📦 Core Modules
+
+### `validation.js`
+
+Validates the three-question payload:
+
+- Checks all questions (q1, q2, q3) are present
+- Validates answer values are integers within valid ranges
+- Returns detailed error messages with question identifiers
+
+### `recommendService.js`
+
+Orchestrates the recommendation flow:
+
+- Accepts validated answers
+- Calls LLM service with question context
+- Formats response (title, reason, director)
+
+### `llmService.js`
+
+Wraps LLM API calls:
+
+- Supports multiple LLM providers (OpenAI, Anthropic, etc.)
+- Constructs context-aware prompts using the three questions
+- Parses structured recommendations from LLM output
+
+---
+
+## 📌 Roadmap
+
+### v1 — MVP (current)
+
+- [x] `POST /api/recommend` endpoint with three-question flow
+- [x] Input validation (q1, q2, q3)
+- [x] LLM integration for movie recommendations
+- [o] Comprehensive test suite (Vitest)
+- [o] Cloudflare Workers deployment
 
 ### v2
 
-- [ ] TMDB integration for posters, ratings, and trailers.  
-- [ ] Cache movie metadata in DB via Prisma.  
-- [ ] Support multiple recommendations per request.  
+- [ ] TMDB integration for posters, ratings, trailers
+- [ ] Movie metadata caching with Prisma
+- [ ] Support for multiple recommendation variants
+- [ ] User feedback collection
 
 ### v3
 
-- [ ] NLP free‑text recommendation endpoint.  
-- [ ] Embeddings + vector search pipeline.  
-- [ ] User accounts and saved preferences.  
-- [ ] Background workflows for more complex recommendation orchestration. [blog.cloudflare](https://blog.cloudflare.com/building-workflows-durable-execution-on-workers/)
+- [ ] Free-text recommendation endpoint
+- [ ] Vector embeddings for similarity search
+- [ ] User accounts and preference history
+- [ ] Durable Objects for stateful recommendation sessions
 
-***
+---
 
 ## 🤝 Related Repos
 
@@ -208,6 +314,8 @@ Set that environment variable in **Cloudflare Pages** for the frontend repo. [de
 | [movie-recommendation-api](https://github.com/jackaguilera/movie-recommendation-api) | Cloudflare Worker + LLM backend |
 | [movie-recommendation](https://github.com/jackaguilera/movie-recommendation)         | Vite + React frontend UI        |
 
-***
+---
 
-**MIT** – Same license as the frontend; deploy freely.
+## 📄 License
+
+**MIT** – Deploy and modify freely.

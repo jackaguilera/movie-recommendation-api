@@ -2,6 +2,6 @@ name = "movie-recommendation-api"
 main = "src/index.js"
 compatibility_date = "2025-01-21"
 
-[vars]
-DATABASE_URL = ""
-LLM_API_KEY = ""
+workers_ai = { enabled = true }
+
+vars = {}
