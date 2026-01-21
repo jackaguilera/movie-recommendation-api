@@ -1,0 +1,31 @@
+{
+  "name": "movie-recommendation-api",
+  "version": "1.0.0",
+  "description": "A lightweight **Cloudflare Workers backend** that powers the Movie Recommendation Assistant frontend.  \r Receives 3 guided answers from the UI → calls an LLM → returns a **movie recommendation with explanation**, optionally persisting data with **Prisma ORM**. [prisma](https://www.prisma.io/docs/guides/cloudflare-workers)",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackaguilera/movie-recommendation-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/jackaguilera/movie-recommendation-api/issues"
+  },
+  "homepage": "https://github.com/jackaguilera/movie-recommendation-api#readme",
+  "devDependencies": {
+    "wrangler": "^4.59.3",
+    "prisma": "^5.14.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.14.0"
+  }
+}
